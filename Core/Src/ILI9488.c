@@ -658,7 +658,7 @@ void ILI9488_init(void){
   ILI9488_WR_commnad(0x11);
   ILI9488_COLUMN_ADDR_SET(0x00, 0x00, 0x01, 0xE0);
   ILI9488_PAGE_ADDR_SET(0X00, 0X00, 0X01, 0X40);
-  ILI9488_MEMORY_ACCESS_CONTROL(false, false, false, false, false, true);
+  ILI9488_MEMORY_ACCESS_CONTROL(false, true, true, false, false, false);
   ILI9488_interface_pixel_format(0x05, 0x05);
   ILI9488_WRITE_GRAM(0x00);
   ILI9488_Clear(WHITE);

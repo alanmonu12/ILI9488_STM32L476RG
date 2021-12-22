@@ -10,8 +10,8 @@
  */
 /* USER CODE END Header */
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __ILI9488_H__
-#define __ILI9488_H__
+#ifndef __GT911_H__
+#define __GT911_H__
 
 #ifdef __cplusplus
 extern "C" {

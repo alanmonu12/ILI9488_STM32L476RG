@@ -40,8 +40,8 @@ extern "C" {
 #define MEMORY_ACCESS_CONTROL_CMD   0x36
 #define INTERFACE_PIXEL_FORMAT_CMD  0x3A
 
-#define ILI9488_HOR_RES     480
-#define ILI9488_VER_RES     320
+#define ILI9488_HOR_RES     320
+#define ILI9488_VER_RES     480
 
 #define BLACK   0x00
 #define WHITE   0xFF

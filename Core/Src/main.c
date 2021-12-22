@@ -47,9 +47,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-static lv_obj_t * chart;
-static lv_chart_series_t * ser;
-static lv_chart_cursor_t * cursor;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -112,52 +110,28 @@ int main(void)
 
   hal_init();
 
-  button_state = false;
-  chart = lv_chart_create(lv_scr_act());
-  lv_obj_set_size(chart, 200, 150);
-  lv_obj_align(chart, LV_ALIGN_CENTER, 0, -10);
-
-  lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_Y, 10, 5, 6, 5, true, 40);
-  lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_X, 10, 5, 10, 1, true, 30);
-
-  lv_obj_add_event_cb(chart, event_handler, LV_EVENT_ALL, NULL);
-  lv_obj_refresh_ext_draw_size(chart);
-
-  cursor = lv_chart_add_cursor(chart, lv_palette_main(LV_PALETTE_BLUE), LV_DIR_LEFT | LV_DIR_BOTTOM);
-
-  ser = lv_chart_add_series(chart, lv_palette_main(LV_PALETTE_RED), LV_CHART_AXIS_PRIMARY_Y);
-  uint32_t i;
-  for(i = 0; i < 10; i++) {
-      lv_chart_set_next_value(chart, ser, lv_rand(10,90));
-  }
-
-  lv_chart_set_zoom_x(chart, 500);
-
-  lv_obj_t * label = lv_label_create(lv_scr_act());
-  lv_label_set_text(label, "Click on a point");
-  lv_obj_align_to(label, chart, LV_ALIGN_OUT_TOP_MID, 0, -5);
 //-------------------------------------------------------------------
-  // lv_obj_t * label;
+  lv_obj_t * label;
 
-  // lv_obj_t * btn1 = lv_btn_create(lv_scr_act());
-  //   lv_obj_add_event_cb(btn1, event_handler, LV_EVENT_ALL, NULL);
-  //   lv_obj_align(btn1, LV_ALIGN_CENTER, 0, -40);
-  //   lv_obj_add_flag(btn1, LV_OBJ_FLAG_CHECKABLE);
-  //   lv_obj_set_height(btn1, LV_SIZE_CONTENT);
+  lv_obj_t * btn1 = lv_btn_create(lv_scr_act());
+    lv_obj_add_event_cb(btn1, event_handler, LV_EVENT_ALL, NULL);
+    lv_obj_align(btn1, LV_ALIGN_CENTER, 0, -40);
+    lv_obj_add_flag(btn1, LV_OBJ_FLAG_CHECKABLE);
+    lv_obj_set_height(btn1, LV_SIZE_CONTENT);
 
-  // label = lv_label_create(btn1);
-  // lv_label_set_text(label, "Toggle");
-  // lv_obj_center(label);
+  label = lv_label_create(btn1);
+  lv_label_set_text(label, "Toggle");
+  lv_obj_center(label);
 
-  // lv_obj_t * btn2 = lv_btn_create(lv_scr_act());
-  // lv_obj_add_event_cb(btn2, event_handler, LV_EVENT_ALL, NULL);
-  // lv_obj_align(btn2, LV_ALIGN_CENTER, -100, -40);
-  // lv_obj_add_flag(btn2, LV_OBJ_FLAG_CHECKABLE);
-  // lv_obj_set_height(btn2, LV_SIZE_CONTENT);
+  lv_obj_t * btn2 = lv_btn_create(lv_scr_act());
+  lv_obj_add_event_cb(btn2, event_handler, LV_EVENT_ALL, NULL);
+  lv_obj_align(btn2, LV_ALIGN_CENTER, -100, -40);
+  lv_obj_add_flag(btn2, LV_OBJ_FLAG_CHECKABLE);
+  lv_obj_set_height(btn2, LV_SIZE_CONTENT);
 
-  // label = lv_label_create(btn2);
-  // lv_label_set_text(label, "Button");
-  // lv_obj_center(label);
+  label = lv_label_create(btn2);
+  lv_label_set_text(label, "Button");
+  lv_obj_center(label);
   
   /* USER CODE END 2 */
 
@@ -168,56 +142,6 @@ int main(void)
     /* Periodically call the lv_task handler.
     * It could be done in a timer interrupt or an OS task too.*/
     lv_timer_handler();
-    // poolong mode read touch
-    //HAL_I2C_Master_Transmit(&hi2c1, 0xBA, command2, 2, 1000);
-    //HAL_I2C_Master_Receive(&hi2c1, 0xBB, &buffer, 1, 1000);
-
-    //uint16_t cmd = 0xA881;
-    //HAL_I2C_Master_Transmit(&hi2c1, 0xBA, (uint8_t*)&cmd, 2, 1000);
-    //HAL_I2C_Master_Receive(&hi2c1, 0xBB, &buffer, 1, 1000);
-    //Read xfor point 1
-    // HAL_I2C_Master_Transmit(&hi2c1, 0xBA, command3, 2, 1000);
-    // HAL_I2C_Master_Receive(&hi2c1, 0xBB, x_cor[0], 1, 1000);
-    // HAL_I2C_Master_Transmit(&hi2c1, 0xBA, command4, 2, 1000);
-    // HAL_I2C_Master_Receive(&hi2c1, 0xBB, x_cor[1], 1, 1000);
-    // // Read y for point 
-    // HAL_I2C_Master_Transmit(&hi2c1, 0xBA, command5, 2, 1000);
-    // HAL_I2C_Master_Receive(&hi2c1, 0xBB, y_cor[0], 1, 1000);
-    // HAL_I2C_Master_Transmit(&hi2c1, 0xBA, command6, 2, 1000);
-    // HAL_I2C_Master_Receive(&hi2c1, 0xBB, y_cor[1], 1, 1000);
-    //HAL_Delay(1000);
-
-    // uint8_t buffer;
-    // uint16_t cmd = 0x4E81;
-    // HAL_I2C_Master_Transmit(&hi2c1, 0x28, (uint8_t*)&cmd, 2, 1000);
-    // HAL_I2C_Master_Receive(&hi2c1, 0x29, &buffer, 1, 1000);
-
-    // if((buffer & 0x80) && (buffer & 0x01 == 0x01)) {
-    //   cmd = 0x5081;
-    //   HAL_I2C_Master_Transmit(&hi2c1, 0x28, &cmd, 2, 1000);
-    //   HAL_I2C_Master_Receive(&hi2c1, 0x29, x_cor[0], 1, 1000);
-
-    //   cmd = 0x5181;
-    //   HAL_I2C_Master_Transmit(&hi2c1, 0x28, &cmd, 2, 1000);
-    //   HAL_I2C_Master_Receive(&hi2c1, 0x29, x_cor[1], 1, 1000);
-
-    //   // Read y for point 
-    //   cmd = 0x5281;
-    //   HAL_I2C_Master_Transmit(&hi2c1, 0x28, &cmd, 2, 1000);
-    //   HAL_I2C_Master_Receive(&hi2c1, 0x29, y_cor[0], 1, 1000);
-
-    //   cmd = 0x5381;
-    //   HAL_I2C_Master_Transmit(&hi2c1, 0x28, &cmd, 2, 1000);
-    //   HAL_I2C_Master_Receive(&hi2c1, 0x29, y_cor[1], 1, 1000);
-
-    //   uint8_t cmd2[3] = {0x81, 0x4E, (buffer & 0x7E)};
-    //   HAL_I2C_Master_Transmit(&hi2c1, 0x28, cmd2, 3, 1000);
-    // }
-    // else if((buffer & 0x80)) {
-    //   uint8_t cmd2[3] = {0x81, 0x4E, (buffer & 0x7E)};
-    //   HAL_I2C_Master_Transmit(&hi2c1, 0x28, cmd2, 3, 1000);
-    // }
-    // HAL_Delay(1);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -289,9 +213,9 @@ static void hal_init(void)
 
   /*Create a display buffer*/
   static lv_disp_draw_buf_t disp_buf1;
-  static lv_color_t buf1_1[ILI9488_HOR_RES * 60];
+  static lv_color_t buf1_1[ILI9488_HOR_RES * 30];
   //static lv_color_t buf1_2[ILI9488_VER_RES * 40];
-  lv_disp_draw_buf_init(&disp_buf1, buf1_1, NULL, ILI9488_HOR_RES * 60);
+  lv_disp_draw_buf_init(&disp_buf1, buf1_1, NULL, ILI9488_HOR_RES * 30);
 
   /*Create a display*/
   static lv_disp_drv_t disp_drv;
@@ -354,27 +278,27 @@ void my_input_read(lv_indev_drv_t * drv, lv_indev_data_t*data) {
   HAL_I2C_Master_Transmit(&hi2c1, 0x28, (uint8_t*)&cmd, 2, 1000);
   HAL_I2C_Master_Receive(&hi2c1, 0x29, &buffer, 1, 1000);
 
-  if((buffer & 0x80) && (buffer & 0x01 == 0x01)) {
+  if((buffer & 0x80) && ((buffer & 0x01) == 0x01)) {
     uint8_t x1 = 0;
     uint8_t x2 = 0;
     uint8_t y1 = 0;
     uint8_t y2 = 0;
     
     cmd = 0x5081;
-    HAL_I2C_Master_Transmit(&hi2c1, 0x28, &cmd, 2, 1000);
+    HAL_I2C_Master_Transmit(&hi2c1, 0x28, (uint8_t*)&cmd, 2, 1000);
     HAL_I2C_Master_Receive(&hi2c1, 0x29, &x1, 1, 1000);
 
     cmd = 0x5181;
-    HAL_I2C_Master_Transmit(&hi2c1, 0x28, &cmd, 2, 1000);
+    HAL_I2C_Master_Transmit(&hi2c1, 0x28, (uint8_t*)&cmd, 2, 1000);
     HAL_I2C_Master_Receive(&hi2c1, 0x29, &x2, 1, 1000);
 
     // Read y for point 
     cmd = 0x5281;
-    HAL_I2C_Master_Transmit(&hi2c1, 0x28, &cmd, 2, 1000);
+    HAL_I2C_Master_Transmit(&hi2c1, 0x28, (uint8_t*)&cmd, 2, 1000);
     HAL_I2C_Master_Receive(&hi2c1, 0x29, &y1, 1, 1000);
 
     cmd = 0x5381;
-    HAL_I2C_Master_Transmit(&hi2c1, 0x28, &cmd, 2, 1000);
+    HAL_I2C_Master_Transmit(&hi2c1, 0x28, (uint8_t*)&cmd, 2, 1000);
     HAL_I2C_Master_Receive(&hi2c1, 0x29, &y2, 1, 1000);
 
     uint8_t cmd2[3] = {0x81, 0x4E, (buffer & 0x7E)};
@@ -410,55 +334,12 @@ void my_flush_cb(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * 
 static void event_handler(lv_event_t * e)
 {
     lv_event_code_t code = lv_event_get_code(e);
-    lv_obj_t * obj = lv_event_get_target(e);
-
-    static int32_t last_id = -1;
 
     if(code == LV_EVENT_CLICKED) {
         LV_LOG_USER("Clicked");
     }
     else if(code == LV_EVENT_VALUE_CHANGED) {
         LV_LOG_USER("Toggled");
-    }
-    if(code == LV_EVENT_VALUE_CHANGED) {
-        last_id = lv_chart_get_pressed_point(obj);
-        if(last_id != LV_CHART_POINT_NONE) {
-            lv_chart_set_cursor_point(obj, cursor, NULL, last_id);
-        }
-    }
-    else if(code == LV_EVENT_DRAW_PART_END) {
-        lv_obj_draw_part_dsc_t * dsc = lv_event_get_draw_part_dsc(e);
-        if(dsc->part == LV_PART_CURSOR && dsc->p1 && dsc->p2 && dsc->p1->y == dsc->p2->y && last_id >= 0) {
-            lv_coord_t * data_array = lv_chart_get_y_array(chart, ser);
-            lv_coord_t v = data_array[last_id];
-            char buf[16];
-            lv_snprintf(buf, sizeof(buf), "%d", v);
-
-            lv_point_t size;
-            lv_txt_get_size(&size, buf, LV_FONT_DEFAULT, 0, 0, LV_COORD_MAX, LV_TEXT_FLAG_NONE);
-
-            lv_area_t a;
-            a.y2 = dsc->p1->y - 5;
-            a.y1 = a.y2 - size.y - 10;
-            a.x1 = dsc->p1->x + 10;
-            a.x2 = a.x1 + size.x + 10;
-
-            lv_draw_rect_dsc_t draw_rect_dsc;
-            lv_draw_rect_dsc_init(&draw_rect_dsc);
-            draw_rect_dsc.bg_color = lv_palette_main(LV_PALETTE_BLUE);
-            draw_rect_dsc.radius = 3;
-
-            lv_draw_rect(&a, dsc->clip_area, &draw_rect_dsc);
-
-            lv_draw_label_dsc_t draw_label_dsc;
-            lv_draw_label_dsc_init(&draw_label_dsc);
-            draw_label_dsc.color = lv_color_white();
-            a.x1 += 5;
-            a.x2 -= 5;
-            a.y1 += 5;
-            a.y2 -= 5;
-            lv_draw_label(&a, dsc->clip_area, &draw_label_dsc, buf, NULL);
-        }
     }
 }
 
