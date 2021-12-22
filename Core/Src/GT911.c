@@ -11,15 +11,9 @@
 #include "GT911.h"
 
 static uint8_t command[2] = {0x80, 0x40};
-static uint8_t command2[2] = {0x81, 0x4E};
-static uint8_t command3[2] = {0x81, 0x46};
-static uint8_t command4[2] = {0x81, 0x47};
-static uint8_t command5[2] = {0x81, 0x48};
-static uint8_t command6[2] = {0x81, 0x49};
 static uint8_t command7[3] = {0x80, 0x40, 0x00};
 static uint8_t buffer;
-static uint8_t x_cor[2] = {0,0};
-static uint8_t y_cor[2] = {0,0};
+
 
 void GT911_init(){
       // Reset GT911

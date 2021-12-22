@@ -52,18 +52,17 @@ void MX_GPIO_Init(void)
   LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_GPIOB);
 
   /**/
-  LL_GPIO_SetOutputPin(GPIOC, ILI9488_RST_Pin|ILI9488_D7_Pin);
+  LL_GPIO_SetOutputPin(GPIOC, ILI9488_D0_Pin|ILI9488_D1_Pin|ILI9488_D2_Pin|ILI9488_D3_Pin
+                          |ILI9488_D4_Pin|ILI9488_D5_Pin|ILI9488_D6_Pin|ILI9488_D7_Pin);
 
   /**/
-  LL_GPIO_SetOutputPin(GPIOA, ILI9488_RS_Pin|ILI9488_RD_Pin|ILI9488_CS_Pin|ILI9488_D5_Pin
-                          |ILI9488_D6_Pin|ILI9488_D0_Pin);
+  LL_GPIO_SetOutputPin(GPIOA, ILI9488_RS_Pin|ILI9488_RD_Pin|ILI9488_CS_Pin|ILI9488_D6A9_Pin);
 
   /**/
-  LL_GPIO_SetOutputPin(GPIOB, ILI9488_WR_Pin|ILI9488_D4_Pin|ILI9488_D1_Pin|ILI9488_D3_Pin
-                          |ILI9488_D2_Pin|ILI9488_CRST_Pin);
+  LL_GPIO_SetOutputPin(GPIOB, ILI9488_WR_Pin|ILI9488_CRST_Pin);
 
   /**/
-  LL_GPIO_ResetOutputPin(LD2_GPIO_Port, LD2_Pin);
+  LL_GPIO_ResetOutputPin(GPIOA, LD2_Pin|ILI9488_RST_Pin);
 
   /**/
   LL_SYSCFG_SetEXTISource(LL_SYSCFG_EXTI_PORTC, LL_SYSCFG_EXTI_LINE13);
@@ -100,7 +99,8 @@ void MX_GPIO_Init(void)
   LL_GPIO_SetPinMode(ILI9488_INT_GPIO_Port, ILI9488_INT_Pin, LL_GPIO_MODE_INPUT);
 
   /**/
-  GPIO_InitStruct.Pin = ILI9488_RST_Pin|ILI9488_D7_Pin;
+  GPIO_InitStruct.Pin = ILI9488_D0_Pin|ILI9488_D1_Pin|ILI9488_D2_Pin|ILI9488_D3_Pin
+                          |ILI9488_D4_Pin|ILI9488_D5_Pin|ILI9488_D6_Pin|ILI9488_D7_Pin;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
   GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
@@ -108,8 +108,7 @@ void MX_GPIO_Init(void)
   LL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /**/
-  GPIO_InitStruct.Pin = ILI9488_RS_Pin|ILI9488_RD_Pin|ILI9488_CS_Pin|ILI9488_D5_Pin
-                          |ILI9488_D6_Pin|ILI9488_D0_Pin;
+  GPIO_InitStruct.Pin = ILI9488_RS_Pin|ILI9488_RD_Pin|ILI9488_CS_Pin|ILI9488_D6A9_Pin;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
   GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
@@ -117,16 +116,15 @@ void MX_GPIO_Init(void)
   LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /**/
-  GPIO_InitStruct.Pin = LD2_Pin;
+  GPIO_InitStruct.Pin = LD2_Pin|ILI9488_RST_Pin;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
   GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
   GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
-  LL_GPIO_Init(LD2_GPIO_Port, &GPIO_InitStruct);
+  LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /**/
-  GPIO_InitStruct.Pin = ILI9488_WR_Pin|ILI9488_D4_Pin|ILI9488_D1_Pin|ILI9488_D3_Pin
-                          |ILI9488_D2_Pin|ILI9488_CRST_Pin;
+  GPIO_InitStruct.Pin = ILI9488_WR_Pin|ILI9488_CRST_Pin;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
   GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
