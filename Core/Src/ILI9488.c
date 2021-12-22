@@ -448,7 +448,7 @@ void ILI9488_Clear(uint8_t Color) {
   (Color & (1 << 6)) ? LL_GPIO_SetOutputPin(ILI9488_D6_GPIO_Port, ILI9488_D6_Pin) : LL_GPIO_ResetOutputPin(ILI9488_D6_GPIO_Port, ILI9488_D6_Pin);
   (Color & (1 << 7)) ? LL_GPIO_SetOutputPin(ILI9488_D7_GPIO_Port, ILI9488_D7_Pin) : LL_GPIO_ResetOutputPin(ILI9488_D7_GPIO_Port, ILI9488_D7_Pin);
   
-  for (int i = 0; i < ((320 * 480)*3); i++) {
+  for (int i = 0; i < ((320 * 480)*2); i++) {
       // WR Low to prepare the command
     LL_GPIO_ResetOutputPin(ILI9488_WR_GPIO_Port, ILI9488_WR_Pin);
 
@@ -590,8 +590,8 @@ void ILI9488_draw_pixel(uint16_t x, uint16_t y, uint8_t R_color, uint8_t G_color
   y1 = y & 0x00FF;
   y2 = y >> 8;
 
-  ILI9488_COLUMN_ADDR_SET(y2, y1, 0x01, 0x40);
-  ILI9488_PAGE_ADDR_SET(x2, x1, 0X01, 0XE0);
+  ILI9488_COLUMN_ADDR_SET(x2, x1, 0x01, 0x40);
+  ILI9488_PAGE_ADDR_SET(y2, y1, 0X01, 0XE0);
 
   ILI9488_WRITE_GRAM(0x00);
 
@@ -656,12 +656,12 @@ void ILI9488_draw_pixel(uint16_t x, uint16_t y, uint8_t R_color, uint8_t G_color
 void ILI9488_init(void){
   ILI9488_hardware_reset();
   ILI9488_WR_commnad(0x11);
-  ILI9488_COLUMN_ADDR_SET(0x00, 0x00, 0x01, 0xE0);
-  ILI9488_PAGE_ADDR_SET(0X00, 0X00, 0X01, 0X40);
-  ILI9488_MEMORY_ACCESS_CONTROL(false, true, true, false, false, false);
+  ILI9488_COLUMN_ADDR_SET(0x00, 0x00, 0x01, 0x40);
+  ILI9488_PAGE_ADDR_SET(0X00, 0X00, 0X01, 0XE0);
+  ILI9488_MEMORY_ACCESS_CONTROL(false, true, false, false, false, false);
   ILI9488_interface_pixel_format(0x05, 0x05);
   ILI9488_WRITE_GRAM(0x00);
-  ILI9488_Clear(WHITE);
+  ILI9488_Clear(BLACK);
 
   ILI9488_WR_commnad(NOP_CMD);
   ILI9488_WR_commnad(DISPLAY_ON_CMD);

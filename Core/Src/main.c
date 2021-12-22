@@ -213,9 +213,9 @@ static void hal_init(void)
 
   /*Create a display buffer*/
   static lv_disp_draw_buf_t disp_buf1;
-  static lv_color_t buf1_1[ILI9488_HOR_RES * 30];
-  //static lv_color_t buf1_2[ILI9488_VER_RES * 40];
-  lv_disp_draw_buf_init(&disp_buf1, buf1_1, NULL, ILI9488_HOR_RES * 30);
+  static lv_color_t buf1_1[ILI9488_VER_RES * 30];
+  static lv_color_t buf1_2[ILI9488_VER_RES * 30];
+  lv_disp_draw_buf_init(&disp_buf1, buf1_1, buf1_2, ILI9488_VER_RES * 30);
 
   /*Create a display*/
   static lv_disp_drv_t disp_drv;
@@ -246,29 +246,8 @@ static void hal_init(void)
 
   /*This function will be called periodically (by the library) to get the mouse position and state*/
   indev_drv_1.read_cb = my_input_read;
-  lv_indev_t *mouse_indev = lv_indev_drv_register(&indev_drv_1);
+  lv_indev_drv_register(&indev_drv_1);
 
-  // keyboard_init();
-  // static lv_indev_drv_t indev_drv_2;
-  // lv_indev_drv_init(&indev_drv_2); /*Basic initialization*/
-  // indev_drv_2.type = LV_INDEV_TYPE_KEYPAD;
-  // indev_drv_2.read_cb = keyboard_read;
-  // lv_indev_t *kb_indev = lv_indev_drv_register(&indev_drv_2);
-  // lv_indev_set_group(kb_indev, g);
-  // mousewheel_init();
-  // static lv_indev_drv_t indev_drv_3;
-  // lv_indev_drv_init(&indev_drv_3); /*Basic initialization*/
-  // indev_drv_3.type = LV_INDEV_TYPE_ENCODER;
-  // indev_drv_3.read_cb = mousewheel_read;
-
-  // lv_indev_t * enc_indev = lv_indev_drv_register(&indev_drv_3);
-  // lv_indev_set_group(enc_indev, g);
-
-  // /*Set a cursor for the mouse*/
-  // LV_IMG_DECLARE(mouse_cursor_icon); /*Declare the image file.*/
-  // lv_obj_t * cursor_obj = lv_img_create(lv_scr_act()); /*Create an image object for the cursor */
-  // lv_img_set_src(cursor_obj, &mouse_cursor_icon);           /*Set the image source*/
-  // lv_indev_set_cursor(mouse_indev, cursor_obj);             /*Connect the image  object to the driver*/
 }
 
 void my_input_read(lv_indev_drv_t * drv, lv_indev_data_t*data) {
