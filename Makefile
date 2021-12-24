@@ -71,7 +71,8 @@ Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_exti.c \
 Core/Src/system_stm32l4xx.c \
 Core/Src/ILI9488.c \
 Core/Src/i2c.c \
-Core/Src/GT911.c
+Core/Src/GT911.c \
+Core/Src/demo_widgets.c
 
 SRC_DIR				:= ./lvgl/src
 WORKING_DIR			:= ./build
@@ -137,7 +138,8 @@ C_INCLUDES =  \
 -IDrivers/STM32L4xx_HAL_Driver/Inc/Legacy \
 -IDrivers/CMSIS/Device/ST/STM32L4xx/Include \
 -IDrivers/CMSIS/Include \
--Ilvgl
+-Ilvgl \
+-Ilvgl/examples \
 
 
 # compile gcc flags
