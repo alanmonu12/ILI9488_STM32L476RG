@@ -77,6 +77,8 @@ uint8_t buffer;
 static lv_obj_t * chart;
 static lv_chart_series_t * ser;
 static lv_chart_cursor_t * cursor;
+
+const ILI9488_Typedef* driver;
 /* USER CODE END 0 */
 
 /**
@@ -111,93 +113,67 @@ int main(void)
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
 
-  //HAL_I2C_Mem_Read(&hi2c1, 0xBA, 0x804C, 1, &buffer, 1, 10000);
+  driver = ILI9488_Create();
 
   lv_init();
 
   hal_init();
 
-//-------------------------------------------------------------------
-  // lv_obj_t * label;
+  lv_obj_t * panel = lv_obj_create(lv_scr_act());
+  lv_obj_set_size(panel, 280, 60);
+  lv_obj_set_scroll_snap_x(panel, LV_SCROLL_SNAP_CENTER);
+  lv_obj_set_flex_flow(panel, LV_FLEX_FLOW_ROW);
+  lv_obj_align(panel, LV_ALIGN_CENTER, 0, -100);
 
-  // lv_obj_t * btn1 = lv_btn_create(lv_scr_act());
-  //   lv_obj_add_event_cb(btn1, event_handler, LV_EVENT_ALL, NULL);
-  //   lv_obj_align(btn1, LV_ALIGN_CENTER, 0, -40);
-  //   lv_obj_add_flag(btn1, LV_OBJ_FLAG_CHECKABLE);
-  //   lv_obj_set_height(btn1, LV_SIZE_CONTENT);
+  unsigned int i;
+  for(i = 0; i < 10; i++) {
+      lv_obj_t * btn = lv_btn_create(panel);
+      lv_obj_set_size(btn, 100, lv_pct(100));
 
-  // label = lv_label_create(btn1);
-  // lv_label_set_text(label, "Toggle");
-  // lv_obj_center(label);
+      lv_obj_t * label = lv_label_create(btn);
+      if(i == 3) {
+          lv_label_set_text_fmt(label, "Panel %u\nno snap", i);
+          lv_obj_clear_flag(btn, LV_OBJ_FLAG_SNAPPABLE);
+      } else {
+          lv_label_set_text_fmt(label, "Panel %u", i);
+      }
 
-  // lv_obj_t * btn2 = lv_btn_create(lv_scr_act());
-  // lv_obj_add_event_cb(btn2, event_handler, LV_EVENT_ALL, NULL);
-  // lv_obj_align(btn2, LV_ALIGN_CENTER, -100, -40);
-  // lv_obj_add_flag(btn2, LV_OBJ_FLAG_CHECKABLE);
-  // lv_obj_set_height(btn2, LV_SIZE_CONTENT);
+      lv_obj_center(label);
+  }
+  lv_obj_update_snap(panel, LV_ANIM_ON);
 
-  // label = lv_label_create(btn2);
-  // lv_label_set_text(label, "Button");
-  // lv_obj_center(label);
-  //------------------------------------------------------
-//     lv_obj_t * panel = lv_obj_create(lv_scr_act());
-//     lv_obj_set_size(panel, 280, 60);
-//     lv_obj_set_scroll_snap_x(panel, LV_SCROLL_SNAP_CENTER);
-//     lv_obj_set_flex_flow(panel, LV_FLEX_FLOW_ROW);
-//     lv_obj_align(panel, LV_ALIGN_CENTER, 0, -100);
+  /*Switch between "One scroll" and "Normal scroll" mode*/
+  lv_obj_t * sw = lv_switch_create(lv_scr_act());
+  lv_obj_align(sw, LV_ALIGN_TOP_RIGHT, -20, 10);
+  lv_obj_add_event_cb(sw, sw_event_cb, LV_EVENT_ALL, panel);
+  lv_obj_t * label = lv_label_create(lv_scr_act());
+  lv_label_set_text(label, "One scroll");
+  lv_obj_align_to(label, sw, LV_ALIGN_OUT_BOTTOM_MID, 0, 5);
 
-//     unsigned int i;
-//     for(i = 0; i < 10; i++) {
-//         lv_obj_t * btn = lv_btn_create(panel);
-//         lv_obj_set_size(btn, 100, lv_pct(100));
+  chart = lv_chart_create(lv_scr_act());
+  lv_obj_set_size(chart, 200, 150);
+  lv_obj_align(chart, LV_ALIGN_CENTER, 0, 50);
 
-//         lv_obj_t * label = lv_label_create(btn);
-//         if(i == 3) {
-//             lv_label_set_text_fmt(label, "Panel %u\nno snap", i);
-//             lv_obj_clear_flag(btn, LV_OBJ_FLAG_SNAPPABLE);
-//         } else {
-//             lv_label_set_text_fmt(label, "Panel %u", i);
-//         }
+  lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_Y, 10, 5, 6, 5, true, 40);
+  lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_X, 10, 5, 10, 1, true, 30);
 
-//         lv_obj_center(label);
-//     }
-//     lv_obj_update_snap(panel, LV_ANIM_ON);
+  lv_obj_add_event_cb(chart, event_cb, LV_EVENT_ALL, NULL);
+  lv_obj_refresh_ext_draw_size(chart);
 
-// #if LV_USE_SWITCH
-//     /*Switch between "One scroll" and "Normal scroll" mode*/
-//     lv_obj_t * sw = lv_switch_create(lv_scr_act());
-//     lv_obj_align(sw, LV_ALIGN_TOP_RIGHT, -20, 10);
-//     lv_obj_add_event_cb(sw, sw_event_cb, LV_EVENT_ALL, panel);
-//     lv_obj_t * label = lv_label_create(lv_scr_act());
-//     lv_label_set_text(label, "One scroll");
-//     lv_obj_align_to(label, sw, LV_ALIGN_OUT_BOTTOM_MID, 0, 5);
-// #endif
+  cursor = lv_chart_add_cursor(chart, lv_palette_main(LV_PALETTE_BLUE), LV_DIR_LEFT | LV_DIR_BOTTOM);
 
-//     chart = lv_chart_create(lv_scr_act());
-//     lv_obj_set_size(chart, 200, 150);
-//     lv_obj_align(chart, LV_ALIGN_CENTER, 0, 50);
+  ser = lv_chart_add_series(chart, lv_palette_main(LV_PALETTE_RED), LV_CHART_AXIS_PRIMARY_Y);
+  
+  for(uint32_t i = 0; i < 10; i++) {
+      lv_chart_set_next_value(chart, ser, lv_rand(10,90));
+  }
 
-//     lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_Y, 10, 5, 6, 5, true, 40);
-//     lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_X, 10, 5, 10, 1, true, 30);
+  lv_chart_set_zoom_x(chart, 500);
 
-//     lv_obj_add_event_cb(chart, event_cb, LV_EVENT_ALL, NULL);
-//     lv_obj_refresh_ext_draw_size(chart);
-
-//     cursor = lv_chart_add_cursor(chart, lv_palette_main(LV_PALETTE_BLUE), LV_DIR_LEFT | LV_DIR_BOTTOM);
-
-//     ser = lv_chart_add_series(chart, lv_palette_main(LV_PALETTE_RED), LV_CHART_AXIS_PRIMARY_Y);
-    
-//     for(uint32_t i = 0; i < 10; i++) {
-//         lv_chart_set_next_value(chart, ser, lv_rand(10,90));
-//     }
-
-//     lv_chart_set_zoom_x(chart, 500);
-
-//     label = lv_label_create(lv_scr_act());
-//     lv_label_set_text(label, "Click on a point");
-//     lv_obj_align_to(label, chart, LV_ALIGN_OUT_TOP_MID, 0, -5);
-    //-----------------------------------------
-    demo_widgets();
+  label = lv_label_create(lv_scr_act());
+  lv_label_set_text(label, "Click on a point");
+  lv_obj_align_to(label, chart, LV_ALIGN_OUT_TOP_MID, 0, -5);
+    //demo_widgets();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -268,13 +244,8 @@ void SystemClock_Config(void)
  */
 static void hal_init(void)
 {
-  /* Use the 'monitor' driver which creates window on PC's monitor to simulate a display*/
-  //monitor_init();
-  ILI9488_init();
-  /* Tick init.
-   * You have to call 'lv_tick_inc()' in periodically to inform LittelvGL about
-   * how much time were elapsed Create an SDL thread to do this*/
-  //SDL_CreateThread(tick_thread, "tick", NULL);
+  
+  driver->init(driver);
 
   /*Create a display buffer*/
   static lv_disp_draw_buf_t disp_buf1;
@@ -287,8 +258,8 @@ static void hal_init(void)
   lv_disp_drv_init(&disp_drv); /*Basic initialization*/
   disp_drv.draw_buf = &disp_buf1;
   disp_drv.flush_cb = my_flush_cb;
-  disp_drv.hor_res = ILI9488_VER_RES;
-  disp_drv.ver_res = ILI9488_HOR_RES;
+  disp_drv.hor_res = ILI9488_HOR_RES;
+  disp_drv.ver_res = ILI9488_VER_RES;
   disp_drv.antialiasing = 1;
   disp_drv.rotated = 0;
 

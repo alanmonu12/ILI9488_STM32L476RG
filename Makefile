@@ -25,7 +25,7 @@ PROJ_NAME = $(shell basename $(CURDIR))
 # debug build?
 DEBUG = 0
 # optimization
-OPT = -O3
+OPT = -O3	
 
 SRC_EXT      		:= c
 OBJ_EXT				:= o

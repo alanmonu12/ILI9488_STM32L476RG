@@ -27,6 +27,10 @@ extern "C" {
 /* USER CODE END Private defines */
 
 /* USER CODE BEGIN Prototypes */
+/**
+ * @brief 
+ * 
+ */
 void GT911_init();
 /* USER CODE END Prototypes */
 

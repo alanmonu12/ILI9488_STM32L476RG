@@ -14,7 +14,10 @@ static uint8_t command[2] = {0x80, 0x40};
 static uint8_t command7[3] = {0x80, 0x40, 0x00};
 static uint8_t buffer;
 
-
+/**
+ * @brief 
+ * 
+ */
 void GT911_init(){
       // Reset GT911
   HAL_NVIC_DisableIRQ(EXTI9_5_IRQn);
