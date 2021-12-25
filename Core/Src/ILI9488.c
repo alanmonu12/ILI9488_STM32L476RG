@@ -1,6 +1,18 @@
 #include "ILI9488.h"
 
-static void init(ILI9488_Typedef* const driver);
+/**
+ * @brief 
+ * 
+ * @param driver 
+ */
+static void init(ILI9488_Typedef* driver);
+
+/**
+ * @brief 
+ * 
+ * @param command 
+ */
+static void write_cmd(uint8_t command);
 
 /**
  * @brief 
@@ -18,15 +30,15 @@ void ILI9488_hardware_reset() {
  * 
  * @param command 
  */
-void ILI9488_WR_commnad(uint8_t command) {
+static void write_cmd(uint8_t command) {
   
-  ILI9488_enable_driver();
+  _enable_driver();
 
-  ILI9488_command_mode();
+  _command_mode();
 
-  ILI9488_write_cmd(command);
+  _write_cmd(command);
 
-  ILI9488_disable_driver();
+  _disable_driver();
   
 }
 
@@ -128,46 +140,37 @@ void ILI9488_WRITE_GRAM(uint8_t byte) {
 
 void ILI9488_column_addr_set(uint16_t SC, uint16_t EC){
   
-  ILI9488_enable_driver();
-
-  ILI9488_command_mode();
-
-  ILI9488_write_cmd(COLUMN_ADDR_SET_CMD);
-
-  ILI9488_data_mode();
-
-  ILI9488_write_data((SC >> 8));
-
-  ILI9488_write_data(SC);
-
-  ILI9488_write_data((EC >> 8));
-
-  ILI9488_write_data(EC);
-
-  ILI9488_disable_driver();
   
+  _enable_driver();
+
+  _command_mode();
+
+  _write_cmd(COLUMN_ADDR_SET_CMD);
+
+  _data_mode();
+
+  _write_16bits_data(SC); 
+  _write_16bits_data(EC); 
+
+  _disable_driver();
+
 }
 
 void ILI9488_page_addr_set(uint16_t SP, uint16_t EP){
-  
-  ILI9488_enable_driver();
 
-  ILI9488_command_mode();
+  _enable_driver();
 
-  ILI9488_write_cmd(PAGE_ADDR_SET_CMD);
+  _command_mode();
 
-  ILI9488_data_mode();
+  _write_cmd(PAGE_ADDR_SET_CMD);
 
-  ILI9488_write_data((SP >> 8));
+  _data_mode();
 
-  ILI9488_write_data(SP);
+  _write_16bits_data(SP); 
+  _write_16bits_data(EP); 
 
-  ILI9488_write_data((EP >> 8));
+  _disable_driver();
 
-  ILI9488_write_data(EP);
-
-  ILI9488_disable_driver();
-  
 }
 
 void ILI9488_CONTROL_DISPLAY(uint8_t BCTRL, uint8_t DD, uint8_t BL){
@@ -323,7 +326,7 @@ void ILI9488_interface_pixel_format(uint8_t dpi, uint8_t dbi) {
  * @param B_color
  * @todo Detect the pixel interface
  */
-void ILI9488_draw_pixel(uint16_t x, uint16_t y, uint8_t R_color, uint8_t G_color, uint8_t B_color) {
+static void ILI9488_draw_pixel(uint16_t x, uint16_t y, uint8_t R_color, uint8_t G_color, uint8_t B_color) {
 
   #if (ILI9488_LANDSCAPE)
   ILI9488_column_addr_set(x, 0x01E0);
@@ -379,7 +382,7 @@ void ILI9488_draw_pixel(uint16_t x, uint16_t y, uint8_t R_color, uint8_t G_color
   //High state CS disable driver
   LL_GPIO_SetOutputPin(ILI9488_CS_GPIO_Port, ILI9488_CS_Pin);
 
-  ILI9488_WR_commnad(NOP_CMD);
+  write_cmd(NOP_CMD);
 
 }
 
@@ -444,14 +447,15 @@ void ILI9488_Init(ILI9488_Typedef* const driver) {
     driver->status.Tearing_effect_line_mode = false;
 
     driver->init = init;
+    driver->draw_pixel = ILI9488_draw_pixel;
 }
 
-static void init(ILI9488_Typedef* const driver){
+static void init(ILI9488_Typedef* driver){
   // Reset by hardware
   ILI9488_hardware_reset();
 
   //Send command to get out the driver from sleep mode
-  ILI9488_WR_commnad(SLEEP_OUT_CMD);
+  write_cmd(SLEEP_OUT_CMD);
   driver->status.sleep_mode_status = SLEEP_OUT;
 
   // Set column and page address
@@ -468,6 +472,6 @@ static void init(ILI9488_Typedef* const driver){
   ILI9488_WRITE_GRAM(0x00);
   ILI9488_Clear(WHITE);
 
-  ILI9488_WR_commnad(NOP_CMD);
-  ILI9488_WR_commnad(DISPLAY_ON_CMD);
+  write_cmd(NOP_CMD);
+  write_cmd(DISPLAY_ON_CMD);
 }

@@ -78,7 +78,7 @@ static lv_obj_t * chart;
 static lv_chart_series_t * ser;
 static lv_chart_cursor_t * cursor;
 
-const ILI9488_Typedef* driver;
+ILI9488_Typedef* driver;
 /* USER CODE END 0 */
 
 /**
@@ -318,8 +318,16 @@ void my_input_read(lv_indev_drv_t * drv, lv_indev_data_t*data) {
 
     uint8_t cmd2[3] = {0x81, 0x4E, (buffer & 0x7E)};
     HAL_I2C_Master_Transmit(&hi2c1, 0x28, cmd2, 3, 1000);
+    
+    #if (ILI9488_LANDSCAPE)
     data->point.y = ((x1) | (x2 << 8));
     data->point.x = 480 - ((y1) | (y2 << 8));
+    #endif
+    #if (ILI9488_PORTRAIT)
+    data->point.y = ((y1) | (y2 << 8));
+    data->point.x = ((x1) | (x2 << 8));
+    #endif
+    
     data->state = LV_INDEV_STATE_PRESSED;
   } else {
     uint8_t cmd2[3] = {0x81, 0x4E, (buffer & 0x7E)};
@@ -335,8 +343,7 @@ void my_flush_cb(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * 
     int32_t x, y;
     for(y = area->y1; y <= area->y2; y++) {
         for(x = area->x1; x <= area->x2; x++) {
-            ILI9488_draw_pixel(x,y,color_p->ch.red,color_p->ch.green,color_p->ch.blue);
-            //put_px(x, y, *color_p);
+            driver->draw_pixel(x,y,color_p->ch.red,color_p->ch.green,color_p->ch.blue);
             color_p++;
         }
     }

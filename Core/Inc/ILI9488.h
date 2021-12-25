@@ -20,6 +20,8 @@ extern "C" {
 /* USER CODE BEGIN Includes */
 #include "gpio.h"
 #include "stdbool.h"
+#include "stdlib.h"
+#include "stdarg.h"
 #include "ILI9488_conf.h"
 /* USER CODE END Includes */
 
@@ -85,12 +87,22 @@ extern "C" {
 #define ILI9488_GPIO_PORT GPIOC
 #endif
 
-#define ILI9488_enable_driver()         LL_GPIO_ResetOutputPin(ILI9488_CS_GPIO_Port, ILI9488_CS_Pin)
-#define ILI9488_disable_driver()        LL_GPIO_SetOutputPin(ILI9488_CS_GPIO_Port, ILI9488_CS_Pin)
-#define ILI9488_command_mode()          LL_GPIO_ResetOutputPin(ILI9488_RS_GPIO_Port, ILI9488_RS_Pin)
-#define ILI9488_data_mode()             LL_GPIO_SetOutputPin(ILI9488_RS_GPIO_Port, ILI9488_RS_Pin)
-#define ILI9488_write_cmd(cmd)          LL_GPIO_ResetOutputPin(ILI9488_WR_GPIO_Port, ILI9488_WR_Pin); LL_GPIO_WriteOutputPort(GPIOC, (uint32_t)cmd); LL_GPIO_SetOutputPin(ILI9488_WR_GPIO_Port, ILI9488_WR_Pin);
-#define ILI9488_write_data(data)        LL_GPIO_ResetOutputPin(ILI9488_WR_GPIO_Port, ILI9488_WR_Pin); LL_GPIO_WriteOutputPort(GPIOC, (uint32_t)data); LL_GPIO_SetOutputPin(ILI9488_WR_GPIO_Port, ILI9488_WR_Pin);
+#define _enable_driver()                 LL_GPIO_ResetOutputPin(ILI9488_CS_GPIO_Port, ILI9488_CS_Pin)
+#define _disable_driver()                LL_GPIO_SetOutputPin(ILI9488_CS_GPIO_Port, ILI9488_CS_Pin)
+#define _command_mode()                  LL_GPIO_ResetOutputPin(ILI9488_RS_GPIO_Port, ILI9488_RS_Pin)
+#define _data_mode()                     LL_GPIO_SetOutputPin(ILI9488_RS_GPIO_Port, ILI9488_RS_Pin)
+#define _write_cmd(cmd)                  LL_GPIO_ResetOutputPin(ILI9488_WR_GPIO_Port, ILI9488_WR_Pin); \
+                                                LL_GPIO_WriteOutputPort(ILI9488_GPIO_PORT, (uint32_t)cmd); \
+                                                LL_GPIO_SetOutputPin(ILI9488_WR_GPIO_Port, ILI9488_WR_Pin);
+#define _write_data(data)                LL_GPIO_ResetOutputPin(ILI9488_WR_GPIO_Port, ILI9488_WR_Pin); \
+                                                LL_GPIO_WriteOutputPort(ILI9488_GPIO_PORT, (uint32_t)data); \
+                                                LL_GPIO_SetOutputPin(ILI9488_WR_GPIO_Port, ILI9488_WR_Pin);
+#define _write_16bits_data(data)         LL_GPIO_ResetOutputPin(ILI9488_WR_GPIO_Port, ILI9488_WR_Pin); \
+                                                LL_GPIO_WriteOutputPort(ILI9488_GPIO_PORT, (uint32_t)((data) >> 8)); \
+                                                LL_GPIO_SetOutputPin(ILI9488_WR_GPIO_Port, ILI9488_WR_Pin); \
+                                                LL_GPIO_ResetOutputPin(ILI9488_WR_GPIO_Port, ILI9488_WR_Pin); \
+                                                LL_GPIO_WriteOutputPort(ILI9488_GPIO_PORT, (uint32_t)(data)); \
+                                                LL_GPIO_SetOutputPin(ILI9488_WR_GPIO_Port, ILI9488_WR_Pin);
 
 /* USER CODE END Private defines */
 
@@ -151,7 +163,8 @@ struct ILI9488_Typedef{
 
     bool Display_inversion_status;
 
-    void (*init)(ILI9488_Typedef* const driver);
+    void (*init)(ILI9488_Typedef*);
+    void (*draw_pixel)(uint16_t, uint16_t , uint8_t, uint8_t, uint8_t);
 	//uint16_t (*MAX6675_getValue)(MAX6675_Typedef* const sensor);
 	//float (*MAX6675_getTemp)(MAX6675_Typedef* const sensor);
 	//bool (*MAX6675_getState)(MAX6675_Typedef* const sensor);
@@ -189,10 +202,11 @@ void ILI9488_MEMORY_ACCESS_CONTROL(bool MY, bool MX, bool MV, bool ML, bool BGR,
 void ILI9488_interface_pixel_format(uint8_t dpi, uint8_t dbi);
 
 void ILI9488_init(void);
-void ILI9488_draw_pixel(uint16_t x, uint16_t y, uint8_t R_color, uint8_t G_color, uint8_t B_color);
 
 void ILI9488_column_addr_set(uint16_t SC, uint16_t EC);
 void ILI9488_page_addr_set(uint16_t SP, uint16_t EP);
+
+
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus
