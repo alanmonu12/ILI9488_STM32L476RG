@@ -57,7 +57,6 @@ void SystemClock_Config(void);
 static void hal_init(void);
 void my_input_read(lv_indev_drv_t * drv, lv_indev_data_t*data);
 void my_flush_cb(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p);
-static void event_handler(lv_event_t * e);
 static void sw_event_cb(lv_event_t * e);
 static void event_cb(lv_event_t * e);
 /* USER CODE END PFP */
@@ -351,18 +350,6 @@ void my_flush_cb(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * 
     /* IMPORTANT!!!
      * Inform the graphics library that you are ready with the flushing*/
     lv_disp_flush_ready(disp_drv);
-}
-
-static void event_handler(lv_event_t * e)
-{
-    lv_event_code_t code = lv_event_get_code(e);
-
-    if(code == LV_EVENT_CLICKED) {
-        LV_LOG_USER("Clicked");
-    }
-    else if(code == LV_EVENT_VALUE_CHANGED) {
-        LV_LOG_USER("Toggled");
-    }
 }
 
 static void sw_event_cb(lv_event_t * e)

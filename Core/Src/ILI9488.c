@@ -1,5 +1,22 @@
 #include "ILI9488.h"
 
+#define _enable_driver()                 LL_GPIO_ResetOutputPin(ILI9488_CS_GPIO_Port, ILI9488_CS_Pin)
+#define _disable_driver()                LL_GPIO_SetOutputPin(ILI9488_CS_GPIO_Port, ILI9488_CS_Pin)
+#define _command_mode()                  LL_GPIO_ResetOutputPin(ILI9488_RS_GPIO_Port, ILI9488_RS_Pin)
+#define _data_mode()                     LL_GPIO_SetOutputPin(ILI9488_RS_GPIO_Port, ILI9488_RS_Pin)
+#define _write_cmd(cmd)                  LL_GPIO_ResetOutputPin(ILI9488_WR_GPIO_Port, ILI9488_WR_Pin); \
+                                                LL_GPIO_WriteOutputPort(ILI9488_GPIO_PORT, (uint32_t)cmd); \
+                                                LL_GPIO_SetOutputPin(ILI9488_WR_GPIO_Port, ILI9488_WR_Pin);
+#define _write_8bits_data(data)                LL_GPIO_ResetOutputPin(ILI9488_WR_GPIO_Port, ILI9488_WR_Pin); \
+                                                LL_GPIO_WriteOutputPort(ILI9488_GPIO_PORT, (uint32_t)data); \
+                                                LL_GPIO_SetOutputPin(ILI9488_WR_GPIO_Port, ILI9488_WR_Pin);
+#define _write_16bits_data(data)         LL_GPIO_ResetOutputPin(ILI9488_WR_GPIO_Port, ILI9488_WR_Pin); \
+                                                LL_GPIO_WriteOutputPort(ILI9488_GPIO_PORT, (uint32_t)((data) >> 8)); \
+                                                LL_GPIO_SetOutputPin(ILI9488_WR_GPIO_Port, ILI9488_WR_Pin); \
+                                                LL_GPIO_ResetOutputPin(ILI9488_WR_GPIO_Port, ILI9488_WR_Pin); \
+                                                LL_GPIO_WriteOutputPort(ILI9488_GPIO_PORT, (uint32_t)(data)); \
+                                                LL_GPIO_SetOutputPin(ILI9488_WR_GPIO_Port, ILI9488_WR_Pin);
+
 /**
  * @brief 
  * 
@@ -114,27 +131,11 @@ uint8_t ILI9488_READ_commnad(uint8_t command) {
 
 void ILI9488_WRITE_GRAM(uint8_t byte) {
 
-    // CS select low to enable the driver
-  LL_GPIO_ResetOutputPin(ILI9488_CS_GPIO_Port, ILI9488_CS_Pin);
+  _enable_driver();
 
-  // RS in low state to enable command mode
-  LL_GPIO_ResetOutputPin(ILI9488_RS_GPIO_Port, ILI9488_RS_Pin);
-  
-  // WR Low to prepare the command
-  LL_GPIO_ResetOutputPin(ILI9488_WR_GPIO_Port, ILI9488_WR_Pin);
+  _command_mode();
 
-  /*Set parallel data*/
-  LL_GPIO_WriteOutputPort(GPIOC, (uint32_t)MEMORY_WRITE_CMD);
-
-  // WR to high, driver get the data from the parallel port
-  LL_GPIO_SetOutputPin(ILI9488_WR_GPIO_Port, ILI9488_WR_Pin);
-
-  // High state for RS
-  LL_GPIO_SetOutputPin(ILI9488_RS_GPIO_Port, ILI9488_RS_Pin);
-
-  //High state CS disable driver
-  //LL_GPIO_SetOutputPin(ILI9488_CS_GPIO_Port, ILI9488_CS_Pin);
-  //HAL_Delay(10);
+  _write_cmd(MEMORY_WRITE_CMD);
 
 }
 
@@ -174,102 +175,49 @@ void ILI9488_page_addr_set(uint16_t SP, uint16_t EP){
 }
 
 void ILI9488_CONTROL_DISPLAY(uint8_t BCTRL, uint8_t DD, uint8_t BL){
-      // CS select low to enable the driver
-  LL_GPIO_ResetOutputPin(ILI9488_CS_GPIO_Port, ILI9488_CS_Pin);
-  HAL_Delay(10);
-  // RS in low state to enable command mode
-  LL_GPIO_ResetOutputPin(ILI9488_RS_GPIO_Port, ILI9488_RS_Pin);
-  HAL_Delay(10);
-  // WR Low to prepare the command
-  LL_GPIO_ResetOutputPin(ILI9488_WR_GPIO_Port, ILI9488_WR_Pin);
-  HAL_Delay(10);  
 
-  /*Set parallel data*/
-  LL_GPIO_WriteOutputPort(GPIOC, (uint32_t)WRITE_CTRL_DISPLAY_VALUE);
+  _enable_driver();
 
-  // WR to high, driver get the data from the parallel port
-  LL_GPIO_SetOutputPin(ILI9488_WR_GPIO_Port, ILI9488_WR_Pin);
-  HAL_Delay(10);
+  _command_mode();
 
-  // High state for RS
-  LL_GPIO_SetOutputPin(ILI9488_RS_GPIO_Port, ILI9488_RS_Pin);
-  HAL_Delay(10);
+  _write_cmd(WRITE_CTRL_DISPLAY_VALUE);
 
-  // WR Low to prepare the command
-  LL_GPIO_ResetOutputPin(ILI9488_WR_GPIO_Port, ILI9488_WR_Pin);
-  HAL_Delay(10);  
+  _data_mode();
 
-  /*Set parallel data*/
-  LL_GPIO_WriteOutputPort(GPIOC, (uint32_t)(0x00 | (BL << 2) | (DD << 3) | (BCTRL << 5)));
+  _write_8bits_data((0x00 | (BL << 2) | (DD << 3) | (BCTRL << 5))); 
 
-  // WR to high, driver get the data from the parallel port
-  LL_GPIO_SetOutputPin(ILI9488_WR_GPIO_Port, ILI9488_WR_Pin);
-  HAL_Delay(10);
+  _disable_driver();
 
-  //High state CS disable driver
-  LL_GPIO_SetOutputPin(ILI9488_CS_GPIO_Port, ILI9488_CS_Pin);
-  HAL_Delay(10);
 }
 
 void ILI9488_Clear(uint8_t Color) {
   
-  // RS in low state to enable command mode
-  LL_GPIO_SetOutputPin(ILI9488_RS_GPIO_Port, ILI9488_RS_Pin);
+  _enable_driver();
 
-  // CS select low to enable the driver
-  LL_GPIO_ResetOutputPin(ILI9488_CS_GPIO_Port, ILI9488_CS_Pin);
+  _data_mode();
 
-  /*Set parallel data*/
-  LL_GPIO_WriteOutputPort(GPIOC, (uint32_t)Color);
-  
-  for (int i = 0; i < ((320 * 480)*2); i++) {
-      // WR Low to prepare the command
-    LL_GPIO_ResetOutputPin(ILI9488_WR_GPIO_Port, ILI9488_WR_Pin);
-
-    // WR to high, driver get the data from the parallel port
-    LL_GPIO_SetOutputPin(ILI9488_WR_GPIO_Port, ILI9488_WR_Pin);
+  for (int i = 0; i < ((320 * 480)*3); i++) {
+    _write_8bits_data(Color); 
   }
+  
+  _disable_driver();
 
-  //High state CS disable driver
-  LL_GPIO_SetOutputPin(ILI9488_CS_GPIO_Port, ILI9488_CS_Pin);
 }
 
 void ILI9488_MEMORY_ACCESS_CONTROL(bool MY, bool MX, bool MV, bool ML, bool BGR, bool MH){
-      // CS select low to enable the driver
-  LL_GPIO_ResetOutputPin(ILI9488_CS_GPIO_Port, ILI9488_CS_Pin);
-  HAL_Delay(10);
-  // RS in low state to enable command mode
-  LL_GPIO_ResetOutputPin(ILI9488_RS_GPIO_Port, ILI9488_RS_Pin);
-  HAL_Delay(10);
-  // WR Low to prepare the command
-  LL_GPIO_ResetOutputPin(ILI9488_WR_GPIO_Port, ILI9488_WR_Pin);
-  HAL_Delay(10);  
 
-  /*Set parallel data*/
-  LL_GPIO_WriteOutputPort(GPIOC, (uint32_t)MEMORY_ACCESS_CONTROL_CMD);
+  _enable_driver();
 
-  // WR to high, driver get the data from the parallel port
-  LL_GPIO_SetOutputPin(ILI9488_WR_GPIO_Port, ILI9488_WR_Pin);
-  HAL_Delay(10);
+  _command_mode();
 
-  // High state for RS
-  LL_GPIO_SetOutputPin(ILI9488_RS_GPIO_Port, ILI9488_RS_Pin);
-  HAL_Delay(10);
+  _write_cmd(MEMORY_ACCESS_CONTROL_CMD);
 
-        // WR Low to prepare the command
-  LL_GPIO_ResetOutputPin(ILI9488_WR_GPIO_Port, ILI9488_WR_Pin);
-  HAL_Delay(10);  
+  _data_mode();
 
-  /*Set parallel data*/
-  LL_GPIO_WriteOutputPort(GPIOC, (uint32_t)(0x00 | (MH << 2) | (BGR << 3) | (ML << 4) | (MV << 5) | (MX << 6) | (MY << 7)));
+  _write_8bits_data((0x00 | (MH << 2) | (BGR << 3) | (ML << 4) | (MV << 5) | (MX << 6) | (MY << 7))); 
 
-  // WR to high, driver get the data from the parallel port
-  LL_GPIO_SetOutputPin(ILI9488_WR_GPIO_Port, ILI9488_WR_Pin);
-  HAL_Delay(10);
+  _disable_driver();
 
-  //High state CS disable driver
-  LL_GPIO_SetOutputPin(ILI9488_CS_GPIO_Port, ILI9488_CS_Pin);
-  HAL_Delay(10);
 }
 
 /**
@@ -279,40 +227,18 @@ void ILI9488_MEMORY_ACCESS_CONTROL(bool MY, bool MX, bool MV, bool ML, bool BGR,
  * @param dbi 
  */
 void ILI9488_interface_pixel_format(uint8_t dpi, uint8_t dbi) {
-    // CS select low to enable the driver
-  LL_GPIO_ResetOutputPin(ILI9488_CS_GPIO_Port, ILI9488_CS_Pin);
-  //HAL_Delay(10);
-  // RS in low state to enable command mode
-  LL_GPIO_ResetOutputPin(ILI9488_RS_GPIO_Port, ILI9488_RS_Pin);
-  //HAL_Delay(10);
-  // WR Low to prepare the command
-  LL_GPIO_ResetOutputPin(ILI9488_WR_GPIO_Port, ILI9488_WR_Pin);
-  //HAL_Delay(10);  
 
-  /*Set parallel data*/
-  LL_GPIO_WriteOutputPort(GPIOC, (uint32_t)INTERFACE_PIXEL_FORMAT_CMD);
+  _enable_driver();
 
-  // WR to high, driver get the data from the parallel port
-  LL_GPIO_SetOutputPin(ILI9488_WR_GPIO_Port, ILI9488_WR_Pin);
-  //HAL_Delay(10);
+  _command_mode();
 
-  // High state for RS
-  LL_GPIO_SetOutputPin(ILI9488_RS_GPIO_Port, ILI9488_RS_Pin);
+  _write_cmd(INTERFACE_PIXEL_FORMAT_CMD);
 
-          // WR Low to prepare the command
-  LL_GPIO_ResetOutputPin(ILI9488_WR_GPIO_Port, ILI9488_WR_Pin);
-  //HAL_Delay(10);  
+  _data_mode();
 
-  /*Set parallel data*/
-  LL_GPIO_WriteOutputPort(GPIOC, (uint32_t)(dbi | (dpi << 4)));
+  _write_8bits_data((dbi | (dpi << 4))); 
 
-  // WR to high, driver get the data from the parallel port
-  LL_GPIO_SetOutputPin(ILI9488_WR_GPIO_Port, ILI9488_WR_Pin);
-  //HAL_Delay(10);
-
-  //High state CS disable driver
-  LL_GPIO_SetOutputPin(ILI9488_CS_GPIO_Port, ILI9488_CS_Pin);
-  //HAL_Delay(10);
+  _disable_driver();
 
 }
 
