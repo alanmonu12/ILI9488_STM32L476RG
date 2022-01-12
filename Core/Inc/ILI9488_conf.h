@@ -6,7 +6,7 @@
 #define ILI9488_SPI_INTERFACE 0
 
 // screen orientation
-#define ILI9488_PORTRAIT    1
+#define ILI9488_PORTRAIT    0
 #if ILI9488_PORTRAIT == 0
 #define ILI9488_LANDSCAPE   1
 #endif

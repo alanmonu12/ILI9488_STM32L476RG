@@ -58,7 +58,7 @@ static uint8_t y_cor[2] = {0,0};
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
-
+extern DMA_HandleTypeDef hdma_tim2_ch1;
 /* USER CODE BEGIN EV */
 extern bool button_state;
 /* USER CODE END EV */
@@ -202,6 +202,20 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
+  * @brief This function handles DMA1 channel5 global interrupt.
+  */
+void DMA1_Channel5_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Channel5_IRQn 0 */
+
+  /* USER CODE END DMA1_Channel5_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_tim2_ch1);
+  /* USER CODE BEGIN DMA1_Channel5_IRQn 1 */
+
+  /* USER CODE END DMA1_Channel5_IRQn 1 */
+}
+
+/**
   * @brief This function handles EXTI line[9:5] interrupts.
   */
 void EXTI9_5_IRQHandler(void)
@@ -213,62 +227,42 @@ void EXTI9_5_IRQHandler(void)
   {
     LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_9);
     /* USER CODE BEGIN LL_EXTI_LINE_9 */
-    uint8_t buffer;
-    uint16_t cmd = 0x4E81;
-    HAL_I2C_Master_Transmit(&hi2c1, 0x28, (uint8_t*)&cmd, 2, 1000);
-    HAL_I2C_Master_Receive(&hi2c1, 0x29, &buffer, 1, 1000);
+  //   uint8_t buffer;
+  //   uint16_t cmd = 0x4E81;
+  //   HAL_I2C_Master_Transmit(&hi2c1, 0x28, (uint8_t*)&cmd, 2, 1000);
+  //   HAL_I2C_Master_Receive(&hi2c1, 0x29, &buffer, 1, 1000);
 
-    if((buffer & 0x80) && (buffer & 0x01 == 0x01)) {
-      cmd = 0x5081;
-      HAL_I2C_Master_Transmit(&hi2c1, 0x28, &cmd, 2, 1000);
-      HAL_I2C_Master_Receive(&hi2c1, 0x29, x_cor[0], 1, 1000);
+  //   if((buffer & 0x80) && (buffer & 0x01 == 0x01)) {
+  //     cmd = 0x5081;
+  //     HAL_I2C_Master_Transmit(&hi2c1, 0x28, &cmd, 2, 1000);
+  //     HAL_I2C_Master_Receive(&hi2c1, 0x29, x_cor[0], 1, 1000);
 
-      cmd = 0x5181;
-      HAL_I2C_Master_Transmit(&hi2c1, 0x28, &cmd, 2, 1000);
-      HAL_I2C_Master_Receive(&hi2c1, 0x29, x_cor[1], 1, 1000);
+  //     cmd = 0x5181;
+  //     HAL_I2C_Master_Transmit(&hi2c1, 0x28, &cmd, 2, 1000);
+  //     HAL_I2C_Master_Receive(&hi2c1, 0x29, x_cor[1], 1, 1000);
 
-      // Read y for point 
-      cmd = 0x5281;
-      HAL_I2C_Master_Transmit(&hi2c1, 0x28, &cmd, 2, 1000);
-      HAL_I2C_Master_Receive(&hi2c1, 0x29, y_cor[0], 1, 1000);
+  //     // Read y for point 
+  //     cmd = 0x5281;
+  //     HAL_I2C_Master_Transmit(&hi2c1, 0x28, &cmd, 2, 1000);
+  //     HAL_I2C_Master_Receive(&hi2c1, 0x29, y_cor[0], 1, 1000);
 
-      cmd = 0x5381;
-      HAL_I2C_Master_Transmit(&hi2c1, 0x28, &cmd, 2, 1000);
-      HAL_I2C_Master_Receive(&hi2c1, 0x29, y_cor[1], 1, 1000);
+  //     cmd = 0x5381;
+  //     HAL_I2C_Master_Transmit(&hi2c1, 0x28, &cmd, 2, 1000);
+  //     HAL_I2C_Master_Receive(&hi2c1, 0x29, y_cor[1], 1, 1000);
 
-      uint8_t cmd2[3] = {0x81, 0x4E, (buffer & 0x7E)};
-      HAL_I2C_Master_Transmit(&hi2c1, 0x28, &cmd2, 3, 1000);
-    }
-    else if((buffer & 0x80)) {
-            uint8_t cmd2[3] = {0x81, 0x4E, (buffer & 0x7E)};
-      HAL_I2C_Master_Transmit(&hi2c1, 0x28, &cmd2, 3, 1000);
-    }
+  //     uint8_t cmd2[3] = {0x81, 0x4E, (buffer & 0x7E)};
+  //     HAL_I2C_Master_Transmit(&hi2c1, 0x28, &cmd2, 3, 1000);
+  //   }
+  //   else if((buffer & 0x80)) {
+  //           uint8_t cmd2[3] = {0x81, 0x4E, (buffer & 0x7E)};
+  //     HAL_I2C_Master_Transmit(&hi2c1, 0x28, &cmd2, 3, 1000);
+  //  }
     
     /* USER CODE END LL_EXTI_LINE_9 */
   }
   /* USER CODE BEGIN EXTI9_5_IRQn 1 */
 
   /* USER CODE END EXTI9_5_IRQn 1 */
-}
-
-/**
-  * @brief This function handles EXTI line[15:10] interrupts.
-  */
-void EXTI15_10_IRQHandler(void)
-{
-  /* USER CODE BEGIN EXTI15_10_IRQn 0 */
-
-  /* USER CODE END EXTI15_10_IRQn 0 */
-  if (LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_13) != RESET)
-  {
-    LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_13);
-    /* USER CODE BEGIN LL_EXTI_LINE_13 */
-    button_state = true;
-    /* USER CODE END LL_EXTI_LINE_13 */
-  }
-  /* USER CODE BEGIN EXTI15_10_IRQn 1 */
-
-  /* USER CODE END EXTI15_10_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

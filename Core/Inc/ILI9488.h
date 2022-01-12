@@ -147,8 +147,10 @@ struct ILI9488_Typedef{
 
     bool Display_inversion_status;
 
+    //Functions
     void (*init)(ILI9488_Typedef*);
     void (*draw_pixel)(uint16_t, uint16_t , uint8_t, uint8_t, uint8_t);
+    void (*draw_buffer)(uint16_t*, size_t);
 };
 
 /* USER CODE BEGIN Prototypes */

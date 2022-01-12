@@ -18,7 +18,9 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "dma.h"
 #include "i2c.h"
+#include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 
@@ -59,6 +61,8 @@ void my_input_read(lv_indev_drv_t * drv, lv_indev_data_t*data);
 void my_flush_cb(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p);
 static void sw_event_cb(lv_event_t * e);
 static void event_cb(lv_event_t * e);
+
+extern DMA_HandleTypeDef hdma_tim2_ch1;
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -78,6 +82,9 @@ static lv_chart_series_t * ser;
 static lv_chart_cursor_t * cursor;
 
 ILI9488_Typedef* driver;
+
+uint32_t test_buffer [3] = {0xBBBB, 0xBBBB, 0xBABA};
+uint32_t test_buffer_1 [3] = { 0xff, 0xff, 0xff };
 /* USER CODE END 0 */
 
 /**
@@ -109,69 +116,89 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART2_UART_Init();
+  MX_TIM2_Init();
+  MX_DMA_Init();
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
+  HAL_TIM_Base_MspInit(&htim2);
+  uint32_t* reference = (uint32_t*)0x40000004;
+  *reference = 0x0028;
+  uint32_t* reference_2 = (uint32_t*)0x4000000C;
+  *reference_2 = 0x4300;
 
   driver = ILI9488_Create();
 
-  lv_init();
+  driver->init(driver);
 
-  hal_init();
-
-  lv_obj_t * panel = lv_obj_create(lv_scr_act());
-  lv_obj_set_size(panel, 280, 60);
-  lv_obj_set_scroll_snap_x(panel, LV_SCROLL_SNAP_CENTER);
-  lv_obj_set_flex_flow(panel, LV_FLEX_FLOW_ROW);
-  lv_obj_align(panel, LV_ALIGN_CENTER, 0, -100);
-
-  unsigned int i;
-  for(i = 0; i < 10; i++) {
-      lv_obj_t * btn = lv_btn_create(panel);
-      lv_obj_set_size(btn, 100, lv_pct(100));
-
-      lv_obj_t * label = lv_label_create(btn);
-      if(i == 3) {
-          lv_label_set_text_fmt(label, "Panel %u\nno snap", i);
-          lv_obj_clear_flag(btn, LV_OBJ_FLAG_SNAPPABLE);
-      } else {
-          lv_label_set_text_fmt(label, "Panel %u", i);
-      }
-
-      lv_obj_center(label);
-  }
-  lv_obj_update_snap(panel, LV_ANIM_ON);
-
-  /*Switch between "One scroll" and "Normal scroll" mode*/
-  lv_obj_t * sw = lv_switch_create(lv_scr_act());
-  lv_obj_align(sw, LV_ALIGN_TOP_RIGHT, -20, 10);
-  lv_obj_add_event_cb(sw, sw_event_cb, LV_EVENT_ALL, panel);
-  lv_obj_t * label = lv_label_create(lv_scr_act());
-  lv_label_set_text(label, "One scroll");
-  lv_obj_align_to(label, sw, LV_ALIGN_OUT_BOTTOM_MID, 0, 5);
-
-  chart = lv_chart_create(lv_scr_act());
-  lv_obj_set_size(chart, 200, 150);
-  lv_obj_align(chart, LV_ALIGN_CENTER, 0, 50);
-
-  lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_Y, 10, 5, 6, 5, true, 40);
-  lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_X, 10, 5, 10, 1, true, 30);
-
-  lv_obj_add_event_cb(chart, event_cb, LV_EVENT_ALL, NULL);
-  lv_obj_refresh_ext_draw_size(chart);
-
-  cursor = lv_chart_add_cursor(chart, lv_palette_main(LV_PALETTE_BLUE), LV_DIR_LEFT | LV_DIR_BOTTOM);
-
-  ser = lv_chart_add_series(chart, lv_palette_main(LV_PALETTE_RED), LV_CHART_AXIS_PRIMARY_Y);
+  //HAL_DMA_Start_IT(htim2.hdma[1], (uint32_t)test_buffer, (uint32_t)test_buffer_1, 3);
+  //ILI9488_WRITE_GRAM(0x00);
+  LL_GPIO_WriteOutputPort(ILI9488_GPIO_PORT, (uint32_t)0xAAAA);
+  __HAL_DMA_ENABLE_IT(htim2.hdma[1], DMA_IT_TC);
+  HAL_DMA_Start(htim2.hdma[1], (uint32_t)&test_buffer, (uint32_t)0x48000814, 3);
+  //HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
+  //HAL_TIM_Base_Start(&htim2);
   
-  for(uint32_t i = 0; i < 10; i++) {
-      lv_chart_set_next_value(chart, ser, lv_rand(10,90));
-  }
+  //driver->draw_pixel(0, 0, 0xff, 0xff, 0xff);
+  
 
-  lv_chart_set_zoom_x(chart, 500);
+  // lv_init();
 
-  label = lv_label_create(lv_scr_act());
-  lv_label_set_text(label, "Click on a point");
-  lv_obj_align_to(label, chart, LV_ALIGN_OUT_TOP_MID, 0, -5);
+  // hal_init();
+
+  // lv_obj_t * panel = lv_obj_create(lv_scr_act());
+  // lv_obj_set_size(panel, 280, 60);
+  // lv_obj_set_scroll_snap_x(panel, LV_SCROLL_SNAP_CENTER);
+  // lv_obj_set_flex_flow(panel, LV_FLEX_FLOW_ROW);
+  // lv_obj_align(panel, LV_ALIGN_CENTER, 0, -100);
+
+  // unsigned int i;
+  // for(i = 0; i < 10; i++) {
+  //     lv_obj_t * btn = lv_btn_create(panel);
+  //     lv_obj_set_size(btn, 100, lv_pct(100));
+
+  //     lv_obj_t * label = lv_label_create(btn);
+  //     if(i == 3) {
+  //         lv_label_set_text_fmt(label, "Panel %u\nno snap", i);
+  //         lv_obj_clear_flag(btn, LV_OBJ_FLAG_SNAPPABLE);
+  //     } else {
+  //         lv_label_set_text_fmt(label, "Panel %u", i);
+  //     }
+
+  //     lv_obj_center(label);
+  // }
+  // lv_obj_update_snap(panel, LV_ANIM_ON);
+
+  // /*Switch between "One scroll" and "Normal scroll" mode*/
+  // lv_obj_t * sw = lv_switch_create(lv_scr_act());
+  // lv_obj_align(sw, LV_ALIGN_TOP_RIGHT, -20, 10);
+  // lv_obj_add_event_cb(sw, sw_event_cb, LV_EVENT_ALL, panel);
+  // lv_obj_t * label = lv_label_create(lv_scr_act());
+  // lv_label_set_text(label, "One scroll");
+  // lv_obj_align_to(label, sw, LV_ALIGN_OUT_BOTTOM_MID, 0, 5);
+
+  // chart = lv_chart_create(lv_scr_act());
+  // lv_obj_set_size(chart, 200, 150);
+  // lv_obj_align(chart, LV_ALIGN_CENTER, 0, 50);
+
+  // lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_Y, 10, 5, 6, 5, true, 40);
+  // lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_X, 10, 5, 10, 1, true, 30);
+
+  // lv_obj_add_event_cb(chart, event_cb, LV_EVENT_ALL, NULL);
+  // lv_obj_refresh_ext_draw_size(chart);
+
+  // cursor = lv_chart_add_cursor(chart, lv_palette_main(LV_PALETTE_BLUE), LV_DIR_LEFT | LV_DIR_BOTTOM);
+
+  // ser = lv_chart_add_series(chart, lv_palette_main(LV_PALETTE_RED), LV_CHART_AXIS_PRIMARY_Y);
+  
+  // for(uint32_t i = 0; i < 10; i++) {
+  //     lv_chart_set_next_value(chart, ser, lv_rand(10,90));
+  // }
+
+  // lv_chart_set_zoom_x(chart, 500);
+
+  // label = lv_label_create(lv_scr_act());
+  // lv_label_set_text(label, "Click on a point");
+  // lv_obj_align_to(label, chart, LV_ALIGN_OUT_TOP_MID, 0, -5);
     //demo_widgets();
   /* USER CODE END 2 */
 
@@ -181,7 +208,7 @@ int main(void)
   {
     /* Periodically call the lv_task handler.
     * It could be done in a timer interrupt or an OS task too.*/
-    lv_timer_handler();
+    //lv_timer_handler();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -339,13 +366,9 @@ void my_flush_cb(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * 
 
     /*The most simple case (but also the slowest) to put all pixels to the screen one-by-one
      *`put_px` is just an example, it needs to implemented by you.*/
-    int32_t x, y;
-    for(y = area->y1; y <= area->y2; y++) {
-        for(x = area->x1; x <= area->x2; x++) {
-            driver->draw_pixel(x,y,color_p->ch.red,color_p->ch.green,color_p->ch.blue);
-            color_p++;
-        }
-    }
+    ILI9488_column_addr_set((uint16_t)area->x1, (uint16_t)area->x2);
+    ILI9488_page_addr_set((uint16_t)area->y1, (uint16_t)area->y2);
+    driver->draw_buffer((uint16_t*)color_p, (uint16_t)lv_area_get_size(area));
 
     /* IMPORTANT!!!
      * Inform the graphics library that you are ready with the flushing*/

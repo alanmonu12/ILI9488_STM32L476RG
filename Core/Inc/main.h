@@ -69,7 +69,6 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define B1_Pin LL_GPIO_PIN_13
 #define B1_GPIO_Port GPIOC
-#define B1_EXTI_IRQn EXTI15_10_IRQn
 #define ILI9488_D0_Pin LL_GPIO_PIN_0
 #define ILI9488_D0_GPIO_Port GPIOC
 #define ILI9488_D1_Pin LL_GPIO_PIN_1
@@ -88,8 +87,6 @@ void Error_Handler(void);
 #define USART_RX_GPIO_Port GPIOA
 #define ILI9488_CS_Pin LL_GPIO_PIN_4
 #define ILI9488_CS_GPIO_Port GPIOA
-#define LD2_Pin LL_GPIO_PIN_5
-#define LD2_GPIO_Port GPIOA
 #define ILI9488_RST_Pin LL_GPIO_PIN_7
 #define ILI9488_RST_GPIO_Port GPIOA
 #define ILI9488_D4_Pin LL_GPIO_PIN_4
