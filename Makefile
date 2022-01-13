@@ -23,9 +23,9 @@ PROJ_NAME = $(shell basename $(CURDIR))
 # building variables
 ######################################
 # debug build?
-DEBUG = 1
+DEBUG = 0
 # optimization
-OPT = -O0
+OPT = -O3
 
 SRC_EXT      		:= c
 OBJ_EXT				:= o
@@ -72,9 +72,9 @@ Core/Src/system_stm32l4xx.c \
 Core/Src/ILI9488.c \
 Core/Src/i2c.c \
 Core/Src/GT911.c \
-Core/Src/demo_widgets.c \
 Core/Src/tim.c \
-Core/Src/dma.c
+Core/Src/dma.c \
+Core/Src/gui.c
 
 SRC_DIR				:= ./lvgl/src
 WORKING_DIR			:= ./build

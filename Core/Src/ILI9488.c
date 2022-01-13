@@ -401,7 +401,7 @@ static void init(ILI9488_Typedef* driver){
   ILI9488_MEMORY_ACCESS_CONTROL(true, true, true, false, true, false);
   #endif
   #if (ILI9488_PORTRAIT)
-  ILI9488_MEMORY_ACCESS_CONTROL(false, true, false, false, false, false);
+  ILI9488_MEMORY_ACCESS_CONTROL(false, true, false, false, true, false);
   #endif
   ILI9488_interface_pixel_format(0x05, 0x05);
   ILI9488_WRITE_GRAM(0x00);

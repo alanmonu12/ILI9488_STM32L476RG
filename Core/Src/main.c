@@ -29,6 +29,7 @@
 #include "stdbool.h"
 #include "../lvgl/lvgl.h"
 #include "demo_widgets.h"
+#include "gui.h"
 #include "ILI9488.h"
 #include "GT911.h"
 /* USER CODE END Includes */
@@ -59,32 +60,13 @@ void SystemClock_Config(void);
 static void hal_init(void);
 void my_input_read(lv_indev_drv_t * drv, lv_indev_data_t*data);
 void my_flush_cb(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p);
-static void sw_event_cb(lv_event_t * e);
-static void event_cb(lv_event_t * e);
 
-extern DMA_HandleTypeDef hdma_tim2_ch1;
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-bool button_state;
-uint8_t command[2] = {0x80, 0x40};
-uint8_t command2[2] = {0x81, 0x4E};
-uint8_t command3[2] = {0x81, 0x46};
-uint8_t command4[2] = {0x81, 0x47};
-uint8_t command5[2] = {0x81, 0x48};
-uint8_t command6[2] = {0x81, 0x49};
-uint8_t command7[3] = {0x80, 0x40, 0x00};
-uint8_t buffer;
-
-static lv_obj_t * chart;
-static lv_chart_series_t * ser;
-static lv_chart_cursor_t * cursor;
-
 ILI9488_Typedef* driver;
 
-uint32_t test_buffer [3] = {0xBBBB, 0xBBBB, 0xBABA};
-uint32_t test_buffer_1 [3] = { 0xff, 0xff, 0xff };
 /* USER CODE END 0 */
 
 /**
@@ -120,86 +102,18 @@ int main(void)
   MX_DMA_Init();
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
-  HAL_TIM_Base_MspInit(&htim2);
-  uint32_t* reference = (uint32_t*)0x40000004;
-  *reference = 0x0028;
-  uint32_t* reference_2 = (uint32_t*)0x4000000C;
-  *reference_2 = 0x4300;
+  HAL_NVIC_DisableIRQ(EXTI9_5_IRQn);
 
   driver = ILI9488_Create();
 
   driver->init(driver);
 
-  //HAL_DMA_Start_IT(htim2.hdma[1], (uint32_t)test_buffer, (uint32_t)test_buffer_1, 3);
-  //ILI9488_WRITE_GRAM(0x00);
-  LL_GPIO_WriteOutputPort(ILI9488_GPIO_PORT, (uint32_t)0xAAAA);
-  __HAL_DMA_ENABLE_IT(htim2.hdma[1], DMA_IT_TC);
-  HAL_DMA_Start(htim2.hdma[1], (uint32_t)&test_buffer, (uint32_t)0x48000814, 3);
-  //HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
-  //HAL_TIM_Base_Start(&htim2);
-  
-  //driver->draw_pixel(0, 0, 0xff, 0xff, 0xff);
-  
+  lv_init();
 
-  // lv_init();
+  hal_init();
 
-  // hal_init();
+  gui_init();
 
-  // lv_obj_t * panel = lv_obj_create(lv_scr_act());
-  // lv_obj_set_size(panel, 280, 60);
-  // lv_obj_set_scroll_snap_x(panel, LV_SCROLL_SNAP_CENTER);
-  // lv_obj_set_flex_flow(panel, LV_FLEX_FLOW_ROW);
-  // lv_obj_align(panel, LV_ALIGN_CENTER, 0, -100);
-
-  // unsigned int i;
-  // for(i = 0; i < 10; i++) {
-  //     lv_obj_t * btn = lv_btn_create(panel);
-  //     lv_obj_set_size(btn, 100, lv_pct(100));
-
-  //     lv_obj_t * label = lv_label_create(btn);
-  //     if(i == 3) {
-  //         lv_label_set_text_fmt(label, "Panel %u\nno snap", i);
-  //         lv_obj_clear_flag(btn, LV_OBJ_FLAG_SNAPPABLE);
-  //     } else {
-  //         lv_label_set_text_fmt(label, "Panel %u", i);
-  //     }
-
-  //     lv_obj_center(label);
-  // }
-  // lv_obj_update_snap(panel, LV_ANIM_ON);
-
-  // /*Switch between "One scroll" and "Normal scroll" mode*/
-  // lv_obj_t * sw = lv_switch_create(lv_scr_act());
-  // lv_obj_align(sw, LV_ALIGN_TOP_RIGHT, -20, 10);
-  // lv_obj_add_event_cb(sw, sw_event_cb, LV_EVENT_ALL, panel);
-  // lv_obj_t * label = lv_label_create(lv_scr_act());
-  // lv_label_set_text(label, "One scroll");
-  // lv_obj_align_to(label, sw, LV_ALIGN_OUT_BOTTOM_MID, 0, 5);
-
-  // chart = lv_chart_create(lv_scr_act());
-  // lv_obj_set_size(chart, 200, 150);
-  // lv_obj_align(chart, LV_ALIGN_CENTER, 0, 50);
-
-  // lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_Y, 10, 5, 6, 5, true, 40);
-  // lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_X, 10, 5, 10, 1, true, 30);
-
-  // lv_obj_add_event_cb(chart, event_cb, LV_EVENT_ALL, NULL);
-  // lv_obj_refresh_ext_draw_size(chart);
-
-  // cursor = lv_chart_add_cursor(chart, lv_palette_main(LV_PALETTE_BLUE), LV_DIR_LEFT | LV_DIR_BOTTOM);
-
-  // ser = lv_chart_add_series(chart, lv_palette_main(LV_PALETTE_RED), LV_CHART_AXIS_PRIMARY_Y);
-  
-  // for(uint32_t i = 0; i < 10; i++) {
-  //     lv_chart_set_next_value(chart, ser, lv_rand(10,90));
-  // }
-
-  // lv_chart_set_zoom_x(chart, 500);
-
-  // label = lv_label_create(lv_scr_act());
-  // lv_label_set_text(label, "Click on a point");
-  // lv_obj_align_to(label, chart, LV_ALIGN_OUT_TOP_MID, 0, -5);
-    //demo_widgets();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -208,7 +122,7 @@ int main(void)
   {
     /* Periodically call the lv_task handler.
     * It could be done in a timer interrupt or an OS task too.*/
-    //lv_timer_handler();
+    lv_timer_handler();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -373,68 +287,6 @@ void my_flush_cb(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * 
     /* IMPORTANT!!!
      * Inform the graphics library that you are ready with the flushing*/
     lv_disp_flush_ready(disp_drv);
-}
-
-static void sw_event_cb(lv_event_t * e)
-{
-    lv_event_code_t code = lv_event_get_code(e);
-    lv_obj_t * sw = lv_event_get_target(e);
-
-    if(code == LV_EVENT_VALUE_CHANGED) {
-        lv_obj_t * list = lv_event_get_user_data(e);
-
-        if(lv_obj_has_state(sw, LV_STATE_CHECKED)) lv_obj_add_flag(list, LV_OBJ_FLAG_SCROLL_ONE);
-        else lv_obj_clear_flag(list, LV_OBJ_FLAG_SCROLL_ONE);
-    }
-}
-
-static void event_cb(lv_event_t * e)
-{
-    static int32_t last_id = -1;
-    lv_event_code_t code = lv_event_get_code(e);
-    lv_obj_t * obj = lv_event_get_target(e);
-
-    if(code == LV_EVENT_VALUE_CHANGED) {
-        last_id = lv_chart_get_pressed_point(obj);
-        if(last_id != LV_CHART_POINT_NONE) {
-            lv_chart_set_cursor_point(obj, cursor, NULL, last_id);
-        }
-    }
-    else if(code == LV_EVENT_DRAW_PART_END) {
-        lv_obj_draw_part_dsc_t * dsc = lv_event_get_draw_part_dsc(e);
-        if(!lv_obj_draw_part_check_type(dsc, &lv_chart_class, LV_CHART_DRAW_PART_CURSOR)) return;
-        if(dsc->p1 == NULL || dsc->p2 == NULL || dsc->p1->y != dsc->p2->y || last_id < 0) return;
-
-        lv_coord_t * data_array = lv_chart_get_y_array(chart, ser);
-        lv_coord_t v = data_array[last_id];
-        char buf[16];
-        lv_snprintf(buf, sizeof(buf), "%d", v);
-
-        lv_point_t size;
-        lv_txt_get_size(&size, buf, LV_FONT_DEFAULT, 0, 0, LV_COORD_MAX, LV_TEXT_FLAG_NONE);
-
-        lv_area_t a;
-        a.y2 = dsc->p1->y - 5;
-        a.y1 = a.y2 - size.y - 10;
-        a.x1 = dsc->p1->x + 10;
-        a.x2 = a.x1 + size.x + 10;
-
-        lv_draw_rect_dsc_t draw_rect_dsc;
-        lv_draw_rect_dsc_init(&draw_rect_dsc);
-        draw_rect_dsc.bg_color = lv_palette_main(LV_PALETTE_BLUE);
-        draw_rect_dsc.radius = 3;
-
-        lv_draw_rect(dsc->draw_ctx, &draw_rect_dsc, &a);
-
-        lv_draw_label_dsc_t draw_label_dsc;
-        lv_draw_label_dsc_init(&draw_label_dsc);
-        draw_label_dsc.color = lv_color_white();
-        a.x1 += 5;
-        a.x2 -= 5;
-        a.y1 += 5;
-        a.y2 -= 5;
-        lv_draw_label(dsc->draw_ctx, &draw_label_dsc, &a, buf, NULL);
-    }
 }
 /* USER CODE END 4 */
 

@@ -42,5 +42,5 @@ void GT911_init(){
 
   HAL_Delay(100);
   uint8_t cmd2[3] = {0x81, 0x4E, (buffer & 0x7E)};
-  HAL_I2C_Master_Transmit(&hi2c1, 0x28, &cmd2, 3, 1000);
+  HAL_I2C_Master_Transmit(&hi2c1, 0x28, (uint8_t*)&cmd2, 3, 1000);
 }

@@ -43,8 +43,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
-static uint8_t x_cor[2] = {0,0};
-static uint8_t y_cor[2] = {0,0};
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
