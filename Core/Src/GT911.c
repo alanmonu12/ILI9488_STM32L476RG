@@ -14,7 +14,10 @@ static uint8_t command[2] = {0x80, 0x40};
 static uint8_t command7[3] = {0x80, 0x40, 0x00};
 static uint8_t buffer;
 
-
+/**
+ * @brief 
+ * 
+ */
 void GT911_init(){
       // Reset GT911
   HAL_NVIC_DisableIRQ(EXTI9_5_IRQn);
@@ -39,5 +42,5 @@ void GT911_init(){
 
   HAL_Delay(100);
   uint8_t cmd2[3] = {0x81, 0x4E, (buffer & 0x7E)};
-  HAL_I2C_Master_Transmit(&hi2c1, 0x28, &cmd2, 3, 1000);
+  HAL_I2C_Master_Transmit(&hi2c1, 0x28, (uint8_t*)&cmd2, 3, 1000);
 }
